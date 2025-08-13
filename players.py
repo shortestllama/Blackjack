@@ -81,6 +81,9 @@ class Player:
 	def get_name(self):
 		return self.name
 
+	def get_balance(self):
+		return self.money
+
 class Dealer(Player):
 	def is_dealer(self):
 		return True

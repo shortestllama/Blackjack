@@ -36,17 +36,11 @@ def again():
 	print("1. Yes")
 	print("2. No")
 	print("3. Change players")
-	print("4. Exit")
+	print("4. Display balance")
+	print("5. Exit")
 	answer = int(input("> "))
 
-	if answer == 1:
-		return True
-
-	elif answer == 4:
-		exit(0)
-
-	else:
-		return False
+	return answer
 
 def get_sum(player):
 	if "Ace" in player.print_list:
@@ -274,7 +268,7 @@ def main():
 					for i in range(num_players):
 						player_list.insert(i, players.Player(get_name(i), i))
 
-					flag = True
+					flag = 1
 
 					while flag:
 						for player in player_list:
@@ -365,6 +359,20 @@ def main():
 
 						dealer.set_card_list([])
 						dealer.set_print_list([])
+
+					match flag:
+						case 2:
+							pass
+
+						case 3:
+							pass
+
+						case 4:
+							for player in player_list:
+								print(player.get_balance())
+
+						case 5:
+							exit(0)
 
 				case 2:
 					ai_play()
