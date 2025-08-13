@@ -121,7 +121,7 @@ def make_action(player, dealer_sum):
 		else:
 			check = summation
 
-		while check < 17 or (check == 17 and (player.get_cards(False)[0] == 1 or player.get_cards(False)[1] == 1)):
+		while check < 17 or (check == 17 and len(player.get_cards(False)) == 2 and (player.get_cards(False)[0] == 1 or player.get_cards(False)[1] == 1)):
 			deal(player, False)
 
 			summation = get_sum(player)
