@@ -105,7 +105,7 @@ def make_action(player, dealer_sum):
 
 	if player.is_dealer():
 		print(player.get_name())
-		time.sleep(0.5)
+		time.sleep(1)
 		player.print_cards(False)
 		print(f"The dealer has {summation}")
 
@@ -196,19 +196,19 @@ def deal(player, is_double):
 	card = cards[random.randint(1, 13)] # TODO change cards from numbers to cards and change from random to an actual deck of cards TODO
 	player.add_card(card)
 	print(player.get_name())
-	time.sleep(0.5)
+	time.sleep(1)
 
 	if player.is_dealer() and len(player.get_cards(False)) == 2:
 		player.print_cards(True)
-		time.sleep(0.5)
+		time.sleep(1)
 
 	elif is_double:
 		print(player.get_doubled_cards())
-		time.sleep(0.5)
+		time.sleep(1)
 
 	else:
 		player.print_cards(False)
-		time.sleep(0.5)
+		time.sleep(1)
 
 def place_bet(player):
 	print("How much would you like to bet?")
