@@ -360,19 +360,19 @@ def main():
 						dealer.set_card_list([])
 						dealer.set_print_list([])
 
-					match flag:
-						case 2:
-							pass
+						match flag:
+							case 2:
+								pass
 
-						case 3:
-							pass
+							case 3:
+								pass
 
-						case 4:
-							for player in player_list:
-								print(player.get_balance())
+							case 4:
+								for player in player_list:
+									print(player.get_balance())
 
-						case 5:
-							exit(0)
+							case 5:
+								exit(0)
 
 				case 2:
 					ai_play()

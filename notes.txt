@@ -1,1 +1,2 @@
 allow players to go back to each nested menu at the end of each hand
+need to fix the again() function cuz when I show balance, it should ask me again what i wanna do
