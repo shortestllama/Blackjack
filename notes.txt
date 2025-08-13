@@ -1,0 +1,1 @@
+allow players to see their total balance at the end of each hand

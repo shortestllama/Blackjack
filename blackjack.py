@@ -60,6 +60,22 @@ def get_sum(player):
 
 	return res
 
+def showdown(player_list, dealer_sum):
+	for player in player_list:
+		player.print_doubled_cards()
+
+		summation = get_sum(player)
+
+		if summation == 8 or summation == 1 or summation == 11 or summation == 18:
+			if dealer_sum == 1:
+				print(f"{player.get_name()} has an {summation} to the dealer's 1 or 11")
+
+			else:
+				print(f"{player.get_name()} has an {summation} to the dealer's {dealer_sum}")
+
+		else:
+			print(f"{player.get_name()} has a {summation} to the dealer's {dealer_sum}")
+
 def double(player):
 	player.place_bet(player.get_bet())
 	deal(player, True)
@@ -124,7 +140,6 @@ def make_action(player, dealer_sum):
 		return summation
 
 	else:
-		print(player.get_cards(False))
 		if summation == 21:
 			print("BLACKJACK")
 			return 1
@@ -167,6 +182,21 @@ def make_action(player, dealer_sum):
 					# make a new player and insert it in the player list right after the player chosing to split
 					player_list.insert(player.get_index() + 1, players.Player(player.get_name() + "_split", player.get_index() + 1))
 					deal(player, False)
+
+		return get_sum(player)
+
+def has_blackjack(player):
+	first_card = player.get_cards(False)[0]
+	second_card = player.get_cards(False)[1]
+
+	if first_card == 10 or first_card == 1:
+		if first_card == 10 and second_card == 1:
+			return True
+
+		if first_card == 1 and second_card == 10:
+			return True
+
+	return False
 
 def deal(player, is_double):
 	card = cards[random.randint(1, 13)] # TODO change cards from numbers to cards and change from random to an actual deck of cards TODO
@@ -248,6 +278,7 @@ def main():
 
 					while flag:
 						for player in player_list:
+							player.is_playing = True
 							place_bet(player)
 
 						num_cards = 2
@@ -261,29 +292,76 @@ def main():
 
 							num_cards -= 1
 
+						dealer_has_blackjack = has_blackjack(dealer)
+
+						# dealer wins with blackjack
+						if dealer_has_blackjack:
+							print("Dealer has BLACKJACK")
+							flag = again()
+							continue
+
 						for player in player_list:
-							result = make_action(player, dealer.get_cards(True)[0])
-							
-							if result == -1:
-								player_list.remove(player)
+							player_has_blackjack = has_blackjack(player)
 
-							elif result == 0:
-								player.payout(player.get_bet() * 2)
-
-							elif result == 1:
+							# player wins with blackjack
+							if player_has_blackjack:
+								print(f"{player.get_name()} has BLACKJACK")
 								player.payout(player.get_bet() * 0.5 + player.get_bet() * 2)
 
-						summation = get_sum(dealer)
+						for player in player_list:
+							if player.is_playing:
+								player_final_sum = make_action(player, dealer.get_cards(True)[0])
+								
+								# TODO fix/change this because players should stay in the list
+								if player_final_sum == -1:
+									player.payout(0)
 
-						dealer_sum = make_action(dealer, summation)
+								# add the final sum to a member variable of each player object
+								player.add_result(player_final_sum)
+
+						showdown(player_list, dealer.get_cards(True)[0])
+
+						summation = get_sum(dealer)
+						dealer_final_sum = make_action(dealer, summation)
 
 						# add the final sum to a member variable of each player object
+						dealer.add_result(dealer_final_sum)
+
+						for player in player_list:
+							player_summation = player.get_final_sum()
+							dealer_summation = dealer.get_final_sum()
+
+							if type(player_summation) is tuple:
+								player_check = player_summation[1]
+
+							else:
+								player_check = player_summation
+
+							if type(dealer_summation) is tuple:
+								dealer_check = dealer_summation[1]
+
+							else:
+								dealer_check = dealer_summation
+
+							# normal win
+							if player_check > dealer_check:
+								print(f"{player.get_name()} WINS")
+								player.payout(player.get_bet() * 2)
+
+							# push
+							elif player_check == dealer_check:
+								print(f"{player.get_name()} made a PUSH")
+								player.payout(player.get_bet())
+
+							elif player_check < dealer_check:
+								print(f"{player.get_name()} LOSES")
 
 						flag = again()
 
 						for player in player_list:
 							player.set_card_list([])
 							player.set_print_list([])
+							player.set_doubled_card(-1)
 
 						dealer.set_card_list([])
 						dealer.set_print_list([])
