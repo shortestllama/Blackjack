@@ -37,15 +37,80 @@ def ai_play():
 	# TODO
 	pass
 
-def again():
-	print("Would you like to play again?")
-	print("Make a selection")
-	print("1. Yes")
-	print("2. No")
-	print("3. Change players")
-	print("4. Display balance")
-	print("5. Exit")
-	answer = int(input("> "))
+def get_player_by_name(player_list):
+	print("Players at the table:")
+
+	for player in player_list:
+		print(player.get_name())
+
+	player_names = []
+
+	for player in player_list:
+		player_names.append(player.get_name())
+
+	flag = True
+
+	while flag:
+		print("Who would like to leave the table?")
+		player = input("> ")
+
+		if player in player_names:
+			flag = False
+
+def remove_players(player_list):
+	# TODO need to implement checks on the players requested to be removed and need to verify each name is unique when added to the player_list
+	removed_players = get_player_by_name(player_list)
+
+	for player in removed_players:
+		player_list.remove(player)
+
+def add_players(player_list):
+	num_players = player_count(player_list)
+
+	for i in range(len(player_list), len(player_list) + num_players):
+		player_list.insert(i, players.Player(get_name(i), i))
+
+def add_or_remove():
+	flag = True
+
+	while flag:
+		print("Would you like to add or remove players?")
+		print("Make a selection")
+		print("1. Add")
+		print("2. Remove")
+
+		try:
+			selection = int(input("> "))
+			flag = False
+
+		except:
+			menu_help(2)
+			continue
+
+		if selection > 2 or selection < 1:
+			menu_help(2)
+			flag = True
+
+	return selection
+
+def play_again():
+	flag = True
+
+	while flag:
+		print("Would you like to play again?")
+		print("Make a selection")
+		print("1. Yes")
+		print("2. No")
+		print("3. Change players")
+		print("4. Display balance")
+		print("5. Exit")
+
+		try:
+			answer = int(input("> "))
+			flag = False
+
+		except:
+			menu_help(5)
 
 	return answer
 
@@ -86,27 +151,51 @@ def double(player):
 
 def request_action(player, dealer_sum):
 	summation = get_sum(player)
+	flag = True
 
-	if summation == 8 or summation == 1 or summation == 11 or summation == 18:
-		if dealer_sum == 1:
-			print(f"{player.get_name()}, you have an {summation} to the dealer's 1 or 11")
+	while flag:
+		if summation == 8 or summation == 1 or summation == 11 or summation == 18:
+			if dealer_sum == 1:
+				print(f"{player.get_name()}, you have an {summation} to the dealer's 1 or 11")
+
+			else:
+				print(f"{player.get_name()}, you have an {summation} to the dealer's {dealer_sum}")
 
 		else:
-			print(f"{player.get_name()}, you have an {summation} to the dealer's {dealer_sum}")
+			print(f"{player.get_name()}, you have a {summation} to the dealer's {dealer_sum}")
 
-	else:
-		print(f"{player.get_name()}, you have a {summation} to the dealer's {dealer_sum}")
+		print("What would you like to do?")
+		print("1. Hit")
+		print("2. Stand")
+		print("3. Double")
+		
+		if player.get_cards(False)[0] == player.get_cards(False)[1]:
+			print("4. Split")
 
-	print("What would you like to do?")
-	print("1. Hit")
-	print("2. Stand")
-	print("3. Double")
-	
-	if player.get_cards(False)[0] == player.get_cards(False)[1]:
-		print("4. Split")
+		print("Make a selection")
 
-	print("Make a selection")
-	action = int(input("> "))
+		try:
+			action = int(input("> "))
+			flag = False
+
+		except:
+			if player.get_cards(False)[0] == player.get_cards(False)[1]:
+				menu_help(4)
+
+			else:
+				menu_help(3)
+			
+			continue
+
+		if player.get_cards(False)[0] == player.get_cards(False)[1]:
+			if action > 4 or action < 1:
+				menu_help(4)
+				flag = True
+
+		else:
+			if action > 3 or action < 1:
+				menu_help(3)
+				flag = True
 
 	return action
 
@@ -189,6 +278,9 @@ def make_action(player, dealer_sum):
 					player_list.insert(player.get_index() + 1, players.Player(player.get_name() + "_split", player.get_index() + 1))
 					deal(player, False)
 
+				case _:
+					continue
+
 		return get_sum(player)
 
 def has_blackjack(player):
@@ -223,9 +315,23 @@ def deal(player, is_double):
 		time.sleep(2)
 
 def place_bet(player):
-	print(f"{player.get_name()}, how much would you like to bet?")
-	print("Enter a dollar amount")
-	bet = int(input("> "))
+	flag = True
+
+	while flag:
+		print(f"{player.get_name()}, how much would you like to bet?")
+		print("Enter a dollar amount")
+
+		try:
+			bet = int(input("> "))
+			flag = False
+
+			if bet <= 0 or bet > player.get_balance():
+				menu_help(player.get_balance())
+				flag = True
+
+		except:
+			menu_help(player.get_balance())
+
 	player.place_bet(bet)
 
 def get_name(index):
@@ -234,34 +340,152 @@ def get_name(index):
 
 	return name
 
-def player_play():
-	print("How many players are playing?")
-	print("Enter a number")
-	selection = int(input("> "))
+def play_offline(player_list, num_players, dealer):
+	for player in player_list:
+		player.is_playing = True
+		place_bet(player)
+
+	num_cards = 2
+
+	while num_cards > 0:
+		for player in player_list:
+			if player.get_bet() > 0:
+				deal(player, False)
+
+		deal(dealer, False)
+
+		num_cards -= 1
+
+	dealer_has_blackjack = has_blackjack(dealer)
+
+	# dealer wins with blackjack
+	if dealer_has_blackjack:
+		print("Dealer has BLACKJACK")
+		# TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+		#flag = play_again()
+		#continue
+
+		return
+
+	for player in player_list:
+		player_has_blackjack = has_blackjack(player)
+
+		# player wins with blackjack
+		if player_has_blackjack:
+			print(f"{player.get_name()} has BLACKJACK")
+			player.payout(player.get_bet() * 0.5 + player.get_bet() * 2)
+
+	for player in player_list:
+		if player.is_playing:
+			player_final_sum = make_action(player, dealer.get_cards(True)[0])
+			
+			if player_final_sum == -1:
+				player.payout(0)
+
+			# add the final sum to a member variable of each player object
+			player.add_result(player_final_sum)
+
+	showdown(player_list, dealer.get_cards(True)[0])
+
+	summation = get_sum(dealer)
+	dealer_final_sum = make_action(dealer, summation)
+
+	# add the final sum to a member variable of each player object
+	dealer.add_result(dealer_final_sum)
+
+	for player in player_list:
+		player_summation = player.get_final_sum()
+		dealer_summation = dealer.get_final_sum()
+
+		if type(player_summation) is tuple:
+			player_check = player_summation[1]
+
+		else:
+			player_check = player_summation
+
+		if type(dealer_summation) is tuple:
+			dealer_check = dealer_summation[1]
+
+		else:
+			dealer_check = dealer_summation
+
+		# normal win
+		if player_check > dealer_check:
+			print(f"{player.get_name()} WINS")
+			player.payout(player.get_bet() * 2)
+
+		# push
+		elif player_check == dealer_check:
+			print(f"{player.get_name()} made a PUSH")
+			player.payout(player.get_bet())
+
+		elif player_check < dealer_check:
+			print(f"{player.get_name()} LOSES")
+
+def player_count(player_list):
+	flag = True
+
+	while flag:
+		print(f"There are {8 - len(player_list)} seats available at the table")
+		print("How many players will sit down?")
+		print("Enter a number")
+
+		try:
+			selection = int(input("> "))
+			flag = False
+
+		except:
+			menu_help(8 - len(player_list))
+			continue
+
+		if selection > (8 - len(player_list)) or selection < 1:
+			menu_help(8 - len(player_list))
+			flag = True
 
 	return selection
 
 def play_menu():
-	print("Would you like to play or watch the AI?")
-	print("1. I would like to play")
-	print("2. I would like to watch the AI")
-	print("Make a selection")
-	selection = int(input("> "))
+	flag = True
+
+	while flag:
+		print("How would you like to play?")
+		print("1. Offline")
+		print("2. Online")
+		print("3. Watch AI")
+		print("4. Back")
+		print("5. Exit")
+		print("Make a selection")
+
+		try:
+			selection = int(input("> "))
+			flag = False
+
+		except:
+			menu_help(5)
 
 	return selection
 
-def menu_help():
-	print("Please enter a number between 1 and 4")
+def menu_help(end):
+	print(f"Please enter a number between 1 and {end}")
 
 def startup():
-	print("Welcome to Jack's Blackjack!!!")
-	print("Menu")
-	print("1. Play")
-	print("2. Rules")
-	print("3. Strategy")
-	print("4. Exit")
-	print("Make a selection")
-	selection = int(input("> "))
+	flag = True
+
+	while flag:
+		print("Welcome to Jack's Blackjack!!!")
+		print("Menu")
+		print("1. Play")
+		print("2. Rules")
+		print("3. Strategy")
+		print("4. Exit")
+		print("Make a selection")
+
+		try:
+			selection = int(input("> "))
+			flag = False
+
+		except:
+			menu_help(4)
 
 	return selection
 
@@ -272,124 +496,86 @@ def main():
 		match selection:
 			case 1:
 				dealer = players.Dealer("dealer", -1)
-				play_selection = play_menu()
+				is_playing = True
 
-				match play_selection:
-					case 1:
-						player_list = []
-						num_players = player_play()
+				while is_playing:
+					play_selection = play_menu()
 
-						for i in range(num_players):
-							player_list.insert(i, players.Player(get_name(i), i))
+					match play_selection:
+						# Play offline
+						case 1:
+							is_playing_offline = True
+							player_list = []
+							num_players = player_count(player_list)
 
-						flag = 1
+							for i in range(num_players):
+								player_list.insert(i, players.Player(get_name(i), i))
 
-						while flag:
-							for player in player_list:
-								player.is_playing = True
-								place_bet(player)
+							play_offline(player_list, num_players, dealer)
 
-							num_cards = 2
+							while is_playing_offline:
+								flag = play_again()
 
-							while num_cards > 0:
-								for player in player_list:
-									if player.get_bet() > 0:
-										deal(player, False)
+								match flag:
+									# Play again
+									case 1:
+										for player in player_list:
+											player.set_card_list([])
+											player.set_print_list([])
+											player.set_doubled_card(-1)
 
-								deal(dealer, False)
+										dealer.set_card_list([])
+										dealer.set_print_list([])
 
-								num_cards -= 1
+										play_offline(player_list, num_players, dealer)
 
-							dealer_has_blackjack = has_blackjack(dealer)
+									# Don't play again
+									case 2:
+										is_playing_offline = False
 
-							# dealer wins with blackjack
-							if dealer_has_blackjack:
-								print("Dealer has BLACKJACK")
-								flag = again()
-								continue
+									# Change players
+									case 3:
+										change_players = add_or_remove()
 
-							for player in player_list:
-								player_has_blackjack = has_blackjack(player)
+										match change_players:
+											case 1:
+												num_players = add_players(player_list)
 
-								# player wins with blackjack
-								if player_has_blackjack:
-									print(f"{player.get_name()} has BLACKJACK")
-									player.payout(player.get_bet() * 0.5 + player.get_bet() * 2)
+											case 2:
+												num_players = remove_players(player_list)
 
-							for player in player_list:
-								if player.is_playing:
-									player_final_sum = make_action(player, dealer.get_cards(True)[0])
-									
-									# TODO fix/change this because players should stay in the list
-									if player_final_sum == -1:
-										player.payout(0)
+									# Display balance
+									case 4:
+										for player in player_list:
+											print(player.get_balance())
 
-									# add the final sum to a member variable of each player object
-									player.add_result(player_final_sum)
+									# Exit
+									case 5:
+										exit(0)
 
-							showdown(player_list, dealer.get_cards(True)[0])
+									case _:
+										menu_help(5)
 
-							summation = get_sum(dealer)
-							dealer_final_sum = make_action(dealer, summation)
+						# Play online
+						case 2:
+							# TODO
+							play_online()
 
-							# add the final sum to a member variable of each player object
-							dealer.add_result(dealer_final_sum)
+						# Watch AI
+						case 3:
+							# TODO
+							ai_play()
 
-							for player in player_list:
-								player_summation = player.get_final_sum()
-								dealer_summation = dealer.get_final_sum()
+						# Back
+						case 4:
+							is_playing = False
 
-								if type(player_summation) is tuple:
-									player_check = player_summation[1]
+						# Exit
+						case 5:
+							exit(0)
 
-								else:
-									player_check = player_summation
-
-								if type(dealer_summation) is tuple:
-									dealer_check = dealer_summation[1]
-
-								else:
-									dealer_check = dealer_summation
-
-								# normal win
-								if player_check > dealer_check:
-									print(f"{player.get_name()} WINS")
-									player.payout(player.get_bet() * 2)
-
-								# push
-								elif player_check == dealer_check:
-									print(f"{player.get_name()} made a PUSH")
-									player.payout(player.get_bet())
-
-								elif player_check < dealer_check:
-									print(f"{player.get_name()} LOSES")
-
-							flag = again()
-
-							for player in player_list:
-								player.set_card_list([])
-								player.set_print_list([])
-								player.set_doubled_card(-1)
-
-							dealer.set_card_list([])
-							dealer.set_print_list([])
-
-							match flag:
-								case 2:
-									pass
-
-								case 3:
-									pass
-
-								case 4:
-									for player in player_list:
-										print(player.get_balance())
-
-								case 5:
-									exit(0)
-
-					case 2:
-						ai_play()
+						case _:
+							menu_help(5)
 
 			case 2:
 				display_rules()
@@ -401,7 +587,7 @@ def main():
 				exit(0)
 
 			case _:
-				menu_help()
+				menu_help(4)
 
 if __name__ == '__main__':
 	main()
