@@ -5,3 +5,11 @@ add some type of animation so that it's like [] for a second, then the card show
 keep messing with the timing till it feels right...
 if a dealer blackjack works, you can delete the two commented lines
 	labeled with a bunch of TODOs
+IMPLEMENT SPLITTING
+
+working on online game:
+	bytes object formatting struggles
+	new class Online_Player(Player)
+		has a socket
+	still just do everything based off of player objects in the player_list
+		but now with Online_Player(Player) objects, we can use their socket to send and receive data in the same loops as before

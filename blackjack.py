@@ -1,3 +1,4 @@
+import socket
 import time
 import random
 import players
@@ -45,6 +46,156 @@ def display_rules():
 def ai_play():
 	# TODO
 	pass
+
+def join_server():
+	print("Enter the IP address of the server")
+	server = input("> ")
+
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect((server, 4444))
+
+	s.send(b"Hello")
+	input()
+
+def place_bets_online(player):
+	flag = True
+
+	while flag:
+		ret = b"{name}, how much would you like to bet?\n".format(name = player.get_name())
+		ret += b"Enter a dollar amount\n"
+		ret += b"> "
+		player.get_socket().send(ret)
+		bet = player.get_socket().recv(1024)
+
+		try:
+			bet = int(bet)
+			flag = False
+
+			if bet <= 0 or bet > player.get_balance():
+				menu_help(player.get_balance())
+				flag = True
+
+		except:
+			menu_help(player.get_balance())
+
+	player.place_bet(bet)
+
+def play_round(player_list):
+	for player in player_list:
+		place_bets_online(player)
+	'''
+							is_playing_offline = True
+							player_list = []
+							num_players = player_count(player_list)
+
+							for i in range(num_players):
+								player_list.insert(i, players.Player(get_name(i), i))
+
+							play_offline(player_list, num_players, dealer)
+
+							while is_playing_offline:
+								flag = play_again()
+
+								match flag:
+									# Play again
+									case 1:
+										for player in player_list:
+											player.set_card_list([])
+											player.set_print_list([])
+											player.set_doubled_card(-1)
+
+										dealer.set_card_list([])
+										dealer.set_print_list([])
+
+										play_offline(player_list, num_players, dealer)
+
+									# Don't play again
+									case 2:
+										is_playing_offline = False
+
+									# Change players
+									case 3:
+										change_players = add_or_remove()
+
+										match change_players:
+											case 1:
+												num_players = add_players(player_list)
+
+											case 2:
+												num_players = remove_players(player_list)
+
+									# Display balance
+									case 4:
+										for player in player_list:
+											print(player.get_balance())
+
+									# Exit
+									case 5:
+										exit(0)
+
+									case _:
+										menu_help(5)
+	'''
+
+def wait_for_start():
+	flag = True
+
+	while flag:
+		print("Select 'Start' when ready")
+		print("1. Start")
+		print("2. Back")
+		print("3. Exit")
+
+		try:
+			selection = int(input("> "))
+			flag = False
+
+		except:
+			menu_help(3)
+
+		if selection > 3 or selection < 1:
+			flag = True
+
+	return selection
+
+def authenticate():
+	print("Please enter your name")
+	name = input("> ")
+
+	return name
+
+def start_server():
+	player_list = []
+
+	server = "127.0.0.1"
+	port = 4444
+
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.bind((server, port))
+
+	s.listen(7)
+
+	# TODO implement threading???
+	client_socket, address = s.accept()
+
+	# TODO implement login/signup
+	name = authenticate()
+	player_list.insert(0, players.Online_Player(name, 0, client_socket))
+
+	# TODO implement lobby???
+	#	 indicates how many players are in the lobby so you don't deal without your friends
+
+	selection = wait_for_start()
+
+	match selection:
+		case 1:
+			play_round(player_list)
+
+		case 2:
+			return False
+
+		case 3:
+			exit(0)
 
 def get_player_by_name(player_list):
 	print("Players at the table:")
@@ -482,10 +633,11 @@ def play_menu():
 	while flag:
 		print("How would you like to play?")
 		print("1. Offline")
-		print("2. Online")
-		print("3. Watch AI")
-		print("4. Back")
-		print("5. Exit")
+		print("2. Create online game")
+		print("3. Join online game")
+		print("4. Watch AI")
+		print("5. Back")
+		print("6. Exit")
 		print("Make a selection")
 
 		try:
@@ -493,7 +645,10 @@ def play_menu():
 			flag = False
 
 		except:
-			menu_help(5)
+			menu_help(6)
+
+		if selection > 6 or selection < 1:
+			flag = True
 
 	return selection
 
@@ -589,21 +744,27 @@ def main():
 										menu_help(5)
 
 						# Play online
+						# TODO change this so that there's two options: "Create online game" and "Join online game"
+						#	 This one is currently the create online server option
 						case 2:
 							# TODO
-							play_online()
+							is_playing = start_server()
+
+						# Join online game
+						case 3:
+							is_playing = join_server()
 
 						# Watch AI
-						case 3:
+						case 4:
 							# TODO
 							ai_play()
 
 						# Back
-						case 4:
+						case 5:
 							is_playing = False
 
 						# Exit
-						case 5:
+						case 6:
 							exit(0)
 
 						case _:

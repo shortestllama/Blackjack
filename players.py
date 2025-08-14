@@ -134,3 +134,11 @@ class Dealer(Player):
 			return temp
 
 		return self.card_list
+
+class Online_Player(Player):
+	def __init__(self, name, index, s):
+		super().__init__(name, index)
+		self.s = s
+
+	def get_socket(self):
+		return self.s
