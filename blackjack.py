@@ -5,6 +5,15 @@ import players
 from rich.console import Console
 from rich.markdown import Markdown
 
+def prRed(s): print("\033[91m{}\033[00m".format(s))
+def prGreen(s): print("\033[92m{}\033[00m".format(s))
+def prYellow(s): print("\033[93m{}\033[00m".format(s))
+def prLightPurple(s): print("\033[94m{}\033[00m".format(s))
+def prPurple(s): print("\033[95m{}\033[00m".format(s))
+def prCyan(s): print("\033[96m{}\033[00m".format(s))
+def prLightGray(s): print("\033[97m{}\033[00m".format(s))
+def prBlack(s): print("\033[90m{}\033[00m".format(s))
+
 cards = {
 	1: "Ace",
 	2: 2,
@@ -57,9 +66,26 @@ def get_player_by_name(player_list):
 		if player in player_names:
 			flag = False
 
+	return player
+
 def remove_players(player_list):
 	# TODO need to implement checks on the players requested to be removed and need to verify each name is unique when added to the player_list
-	removed_players = get_player_by_name(player_list)
+	removed_players = []
+	flag = True
+
+	while flag:
+		removed_players.append(get_player_by_name(player_list))
+		print("Done? (y/n)")
+		answer = input("> ")
+
+		if answer == "y":
+			flag = False
+
+		elif answer == "n":
+			removed_players.append(get_player_by_name(player_list))
+
+		else:
+			prRed("Please enter y or n")
 
 	for player in removed_players:
 		player_list.remove(player)
@@ -203,10 +229,10 @@ def make_action(player, dealer_sum):
 	summation = get_sum(player)
 
 	if player.is_dealer():
-		print(player.get_name())
+		prLightPurple(player.get_name())
 		time.sleep(0.5)
 		player.print_cards(False)
-		print(f"The dealer has {summation}")
+		prLightPurple(f"The dealer has {summation}")
 		time.sleep(2)
 
 		if type(summation) is tuple:
@@ -226,7 +252,7 @@ def make_action(player, dealer_sum):
 			else:
 				check = summation
 
-			print(f"The dealer has {summation}")
+			prLightPurple(f"The dealer has {summation}")
 			time.sleep(2)
 
 			if check > 21:
@@ -299,7 +325,13 @@ def has_blackjack(player):
 def deal(player, is_double):
 	card = cards[random.randint(1, 13)] # TODO change cards from numbers to cards and change from random to an actual deck of cards TODO
 	player.add_card(card)
-	print(player.get_name())
+
+	if player.is_dealer():
+		prLightPurple(player.get_name())
+
+	else:
+		print(player.get_name())
+
 	time.sleep(0.5)
 
 	if player.is_dealer() and len(player.get_cards(False)) == 2:
@@ -411,7 +443,7 @@ def play_offline(player_list, num_players, dealer):
 
 		# normal win
 		if player_check > dealer_check:
-			print(f"{player.get_name()} WINS")
+			prGreen(f"{player.get_name()} WINS")
 			player.payout(player.get_bet() * 2)
 
 		# push
@@ -420,7 +452,7 @@ def play_offline(player_list, num_players, dealer):
 			player.payout(player.get_bet())
 
 		elif player_check < dealer_check:
-			print(f"{player.get_name()} LOSES")
+			prRed(f"{player.get_name()} LOSES")
 
 def player_count(player_list):
 	flag = True
@@ -466,7 +498,7 @@ def play_menu():
 	return selection
 
 def menu_help(end):
-	print(f"Please enter a number between 1 and {end}")
+	prRed(f"Please enter a number between 1 and {end}")
 
 def startup():
 	flag = True

@@ -1,5 +1,14 @@
 #import cards
 
+def prRed(s): print("\033[91m{}\033[00m".format(s))
+def prGreen(s): print("\033[92m{}\033[00m".format(s))
+def prYellow(s): print("\033[93m{}\033[00m".format(s))
+def prLightPurple(s): print("\033[94m{}\033[00m".format(s))
+def prPurple(s): print("\033[95m{}\033[00m".format(s))
+def prCyan(s): print("\033[96m{}\033[00m".format(s))
+def prLightGray(s): print("\033[97m{}\033[00m".format(s))
+def prBlack(s): print("\033[90m{}\033[00m".format(s))
+
 class Player:
 	def __init__(self, name, index):
 		self.name = name
@@ -26,15 +35,15 @@ class Player:
 		self.is_playing = False
 
 	def print_cards(self, is_player_action):
-		print(self.print_list)
+		prYellow(self.print_list)
 
 	def print_doubled_cards(self):
 		if self.doubled_card == -1:
-			print(self.print_list)
+			prYellow(self.print_list)
 
 		else:
 			self.print_list[-1] = self.doubled_card
-			print(self.print_list)
+			prYellow(self.print_list)
 
 	def is_dealer(self):
 		return False
@@ -96,10 +105,10 @@ class Dealer(Player):
 				temp.append(i)
 
 			temp[1] = '[]'
-			print(temp)
+			prYellow(temp)
 
 		else:
-			print(self.print_list)
+			prYellow(self.print_list)
 
 	def get_cards(self, is_player_action):
 		for i, card in enumerate(self.card_list):
