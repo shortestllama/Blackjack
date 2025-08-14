@@ -1,3 +1,5 @@
 allow players to go back to each nested menu at the end of each hand
 need to fix the again() function cuz when I show balance, it should ask me again what i wanna do
 make all the dealer's stuff blue and each player have a different color and red for lose and green for win and gold for blackjack
+add some type of animation so that it's like [] for a second, then the card shows
+keep messing with the timing till it feels right...
