@@ -13,3 +13,20 @@ working on online game:
 		has a socket
 	still just do everything based off of player objects in the player_list
 		but now with Online_Player(Player) objects, we can use their socket to send and receive data in the same loops as before
+
+(
+when you start a server, display the ip address so that you can send that to your friends for them to join
+WHY TF WOULD YOU MAKE THE PLAYER OBJECT ON THE CLIENT SIDE???
+	Make the player object on the server side, just need to send over the name to make the player object
+)
+
+	got through the ready up and placing bets
+	working on the dealing now
+		print to myself
+		send data to client
+		dealer data needs to get printed AND sent to client
+			socket magic???
+			or just make an Online_Dealer(Dealer) subclass and give it the socket created in start_server()???
+
+ask ChatGPT:
+	why don't I have to do port forwarding when I play an online game on the ps4, for example???
